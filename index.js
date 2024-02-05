@@ -5,7 +5,7 @@ import Nylas from "nylas";
 const config = {
   clientId: process.env.NYLAS_CLIENT_ID,
   clientSecret: process.env.NYLAS_CLIENT_SECRET,
-  callbackUri: "http://localhost:3000/oauth",
+  callbackUri: "http://localhost:3000/login/nylas/authorized",
   apiKey: process.env.NYLAS_API_KEY,
   apiUri: process.env.NYLAS_API_URI,
 };
@@ -24,6 +24,15 @@ app.get("/nylas/auth", (req, res) => {
     redirectUri: config.callbackUri,
   });
 
+  //   scope: [
+  //     "https://www.googleapis.com/auth/userinfo.email",
+  //     "https://www.googleapis.com/auth/openid",
+  //     "https://www.googleapis.com/auth/gmail.modify",
+  //     "https://www.googleapis.com/auth/calendar",
+  //     "https://www.googleapis.com/auth/contacts",
+  //     "https://www.googleapis.com/auth/userinfo.profile",
+  //   ],
+
   console.log(authUrl);
 
   res.redirect(authUrl);
@@ -35,7 +44,7 @@ app.listen(port, () => {
 });
 
 // callback route Nylas redirects to
-app.get("/oauth", async (req, res) => {
+app.get("/login/nylas/authorized", async (req, res) => {
   console.log("Received callback from Nylas");
   const code = req.query.code;
 

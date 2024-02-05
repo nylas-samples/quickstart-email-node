@@ -24,16 +24,7 @@ app.get("/nylas/auth", (req, res) => {
     redirectUri: config.callbackUri,
   });
 
-  //   scope: [
-  //     "https://www.googleapis.com/auth/userinfo.email",
-  //     "https://www.googleapis.com/auth/openid",
-  //     "https://www.googleapis.com/auth/gmail.modify",
-  //     "https://www.googleapis.com/auth/calendar",
-  //     "https://www.googleapis.com/auth/contacts",
-  //     "https://www.googleapis.com/auth/userinfo.profile",
-  //   ],
-
-  console.log(authUrl);
+  console.log("authUrl", authUrl);
 
   res.redirect(authUrl);
 });
@@ -53,18 +44,25 @@ app.get("/login/nylas/authorized", async (req, res) => {
     return;
   }
 
+  const codeExchangePayload = {
+    clientSecret: config.apiKey,
+    clientId: config.clientId,
+    redirectUri: config.callbackUri,
+    code,
+  };
+
+  console.log("codeExchangePayload", codeExchangePayload);
+
   try {
-    const response = await nylas.auth.exchangeCodeForToken({
-      clientSecret: config.clientSecret,
-      clientId: config.clientId,
-      redirectUri: config.redirectUri,
-      code,
-    });
+    const response = await nylas.auth.exchangeCodeForToken(codeExchangePayload);
 
     const { grantId } = response;
 
-    res.status(200);
+    console.log("grantId", grantId);
+
+    res.sendStatus(200);
   } catch (error) {
+    console.error("Failed to exchange authorization code for token", error);
     res.status(500).send("Failed to exchange authorization code for token");
   }
 });

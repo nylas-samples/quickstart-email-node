@@ -12,6 +12,7 @@ const config = {
 
 const nylas = new Nylas({
   apiKey: config.apiKey,
+  apiUri: config.apiUri, // "https://api.us.nylas.com" or "https://api.eu.nylas.com"
 });
 
 const app = express();

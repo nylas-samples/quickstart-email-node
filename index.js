@@ -4,7 +4,6 @@ import Nylas from "nylas";
 
 const config = {
   clientId: process.env.NYLAS_CLIENT_ID,
-  clientSecret: process.env.NYLAS_CLIENT_SECRET,
   callbackUri: "http://localhost:3000/login/nylas/authorized",
   apiKey: process.env.NYLAS_API_KEY,
   apiUri: process.env.NYLAS_API_URI,
@@ -18,6 +17,11 @@ const nylas = new Nylas({
 const app = express();
 const port = 3000;
 
+// start the server
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+
 // route to initialize authentication
 app.get("/nylas/auth", (req, res) => {
   const authUrl = nylas.auth.urlForOAuth2({
@@ -25,17 +29,10 @@ app.get("/nylas/auth", (req, res) => {
     redirectUri: config.callbackUri,
   });
 
-  console.log("authUrl", authUrl);
-
   res.redirect(authUrl);
 });
 
-// start the server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-
-// callback route Nylas redirects to
+// auth callback route
 app.get("/login/nylas/authorized", async (req, res) => {
   console.log("Received callback from Nylas");
   const code = req.query.code;
@@ -52,23 +49,21 @@ app.get("/login/nylas/authorized", async (req, res) => {
     code,
   };
 
-  console.log("codeExchangePayload", codeExchangePayload);
-
   try {
     const response = await nylas.auth.exchangeCodeForToken(codeExchangePayload);
-
     const { grantId } = response;
 
+    // NB: This stores in RAM
+    // In a real app you would store this in a database, associated with a user
     process.env.USER_GRANT_ID = grantId;
 
-    res.sendStatus(200);
+    res.json({ message: "OAuth2 flow completed successfully for grant ID: " + grantId });
   } catch (error) {
-    console.error("Failed to exchange authorization code for token", error);
-
     res.status(500).send("Failed to exchange authorization code for token");
   }
 });
 
+// route to fetch recent emails
 app.get("/nylas/recent-emails", async (req, res) => {
   try {
     const identifier = process.env.USER_GRANT_ID;
@@ -79,28 +74,13 @@ app.get("/nylas/recent-emails", async (req, res) => {
       },
     });
 
-    console.log("Recent Messages:", messages);
-
     res.json(messages);
   } catch (error) {
     console.error("Error fetching emails:", error);
   }
 });
 
-app.get("/nylas/grant-info", async (req, res) => {
-  try {
-    const grantId = process.env.USER_GRANT_ID;
-
-    const grant = await nylas.grants.find({ grantId });
-
-    console.log("Grant Info:", grant);
-
-    res.json(grant);
-  } catch (error) {
-    console.error("Error fetching grant info:", error);
-  }
-});
-
+// route to send an email
 app.get("/nylas/send-email", async (req, res) => {
   try {
     const sentMessage = await nylas.messages.send({
@@ -113,7 +93,7 @@ app.get("/nylas/send-email", async (req, res) => {
       },
     });
 
-    console.log("Email sent:", sentMessage);
+    res.json(sentMessage);
   } catch (error) {
     console.error("Error sending email:", error);
   }

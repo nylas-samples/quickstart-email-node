@@ -16,18 +16,18 @@ npm start
 
 4. env variables
 
-```bash
+```env
 NYLAS_CLIENT_ID=
 NYLAS_API_KEY=
 NYLAS_API_URI=https://api.us.nylas.com
+EMAIL=<RECIPIENT_EMAIL_ADDRESS_HERE>
 ```
 
 5. Open your browser and go to `http://localhost:3000/nylas/auth` and log in and end user account
 
-6. After logging in an end user account, you can play with the following endpoints to get a feel for some of what you can do with the Nylas Email API.
+6. After authenticating an end user account, you can visit the following URLs to get a feel for some of what you can do with the Nylas Email API.
 
 ```text
-http://localhost:3000/nylas/grant-info
 http://localhost:3000/nylas/recent-emails
 http://localhost:3000/nylas/send-email
 ```

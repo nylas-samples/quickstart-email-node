@@ -4,7 +4,7 @@ import Nylas from "nylas";
 
 const config = {
   clientId: process.env.NYLAS_CLIENT_ID,
-  callbackUri: "http://localhost:3000/login/nylas/authorized",
+  callbackUri: "http://localhost:3000/oauth/exchange",
   apiKey: process.env.NYLAS_API_KEY,
   apiUri: process.env.NYLAS_API_URI,
 };
@@ -33,7 +33,7 @@ app.get("/nylas/auth", (req, res) => {
 });
 
 // auth callback route
-app.get("/login/nylas/authorized", async (req, res) => {
+app.get("/oauth/exchange", async (req, res) => {
   console.log("Received callback from Nylas");
   const code = req.query.code;
 

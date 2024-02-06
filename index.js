@@ -59,11 +59,62 @@ app.get("/login/nylas/authorized", async (req, res) => {
 
     const { grantId } = response;
 
-    console.log("grantId", grantId);
+    process.env.USER_GRANT_ID = grantId;
 
     res.sendStatus(200);
   } catch (error) {
     console.error("Failed to exchange authorization code for token", error);
+
     res.status(500).send("Failed to exchange authorization code for token");
+  }
+});
+
+app.get("/nylas/recent-emails", async (req, res) => {
+  try {
+    const identifier = process.env.USER_GRANT_ID;
+    const messages = await nylas.messages.list({
+      identifier,
+      queryParams: {
+        limit: 5,
+      },
+    });
+
+    console.log("Recent Messages:", messages);
+
+    res.json(messages);
+  } catch (error) {
+    console.error("Error fetching emails:", error);
+  }
+});
+
+app.get("/nylas/grant-info", async (req, res) => {
+  try {
+    const grantId = process.env.USER_GRANT_ID;
+
+    const grant = await nylas.grants.find({ grantId });
+
+    console.log("Grant Info:", grant);
+
+    res.json(grant);
+  } catch (error) {
+    console.error("Error fetching grant info:", error);
+  }
+});
+
+app.get("/nylas/send-email", async (req, res) => {
+  try {
+    const sentMessage = await nylas.messages.send({
+      identifier: process.env.USER_GRANT_ID,
+      requestBody: {
+        to: [{ name: "Name", email: process.env.EMAIL }],
+        replyTo: [{ name: "Name", email: process.env.EMAIL }],
+        subject: "Your Subject Here (Ash test)",
+        body: "Your email body here. (Ash test)",
+      },
+    });
+
+    console.log("Email sent:", sentMessage);
+  } catch (error) {
+    console.error("Error sending email:", error);
   }
 });

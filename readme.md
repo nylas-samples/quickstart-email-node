@@ -12,7 +12,7 @@ npm install
 npm start
 ```
 
-3. In the Nylas dashboard, create a new application and set the Google connector redirect URL to `http://localhost:3000/oauth/exchange`
+3. In the Nylas dashboard, create a new application and set the hosted auth callback URL to `http://localhost:3000/oauth/exchange`
 
 4. env variables
 
